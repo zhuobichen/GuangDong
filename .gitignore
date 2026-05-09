@@ -4,11 +4,10 @@ __pycache__/
 *.pyo
 *.egg-info/
 
-# Data files (large NC/CSV)
+# Data files (only track Boundary/ reference data)
 Data/Raw/
 Data/Processed/
 Data/Masked/
-Data/Station/
 Data/Hourly/
 Data/Statistics/
 cmaqout/
@@ -57,9 +56,9 @@ Boxplots_Output_CaseComparison/
 1_PictureAndDatenotuse/
 output_figures/
 
-# Legacy/Old code
+# Legacy code (keep scripts, ignore outputs)
 1_codenotuse/
-Other/
+Other/legacy_outputs/
 
 # IDE
 .vscode/
@@ -69,9 +68,11 @@ Other/
 .DS_Store
 Thumbs.db
 
-# Large binary files
+# Large binary files (except Boundary reference files)
 *.nc
+!Data/Boundary/*.nc
 GRIDCRO2D_*
+!Data/Boundary/GRIDCRO2D_*
 
 # Large data directories (CSV/NC/RAR)
 臭氧颗粒物站点校验/
