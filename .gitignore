@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Data files (large NC/CSV)
+Data/Raw/
+Data/Processed/
+Data/Masked/
+Data/Station/
+Data/Hourly/
+Data/Statistics/
+cmaqout/
+cmaqout_ch/
+cmaqout_processed/
+cmaqout_processed_GuangDong/
+cmaqout_processed_HuiZhou/
+cmaqout_processed_land/
+mcipout/
+mcipout_processed/
+mcipout_processed_GuangDong/
+mcipout_processed_HuiZhou/
+mcipout_processed_land/
+mcipout_processed_hourly/
+mcipout_processed_hourly_HuiZhou/
+mcipout_processed_hourly_land/
+emissionlist/
+emissionlist_HuiZhou/
+wrfout/
+wrfout_processed/
+wrfout_py/
+wv_2030TAview/
+wv_py/
+
+# Generated pictures
+Picture/
+Emission_Alone_Plots_CN/
+Emission_Comparison_BoxPlots/
+Emission_Comparison_Plots_CN/
+Emission_Comparison_Plots_PDF_CN/
+Emssion_Comparison_Plots/
+Mcip_Alone_Plots_CN/
+Mcip_Alone_Plots_CN_land/
+Mcip_Comparison_Plots_CN/
+Mcip_Comparison_Plots_Hourly_Case/
+Mcip_Comparison_Plots_PDF_CN/
+Mcip_Comparison_Plots_PDF_CN_MutiYear/
+MultiPollutant_Plots_CN/
+PeopleEmission_Plots_CN/
+PeopleEmission_Plots_PDF/
+Wrfout_Alone_Plots_CN/
+BarCharts_Output_CaseComparison/
+BarCharts_Output_Combined/
+BarCharts_Output_Heatwave/
+Boxplots_Output_CaseComparison/
+1_PictureAndDatenotuse/
+output_figures/
+
+# Legacy/Old code
+1_codenotuse/
+Other/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large binary files
+*.nc
+GRIDCRO2D_*
+
+# Large data directories (CSV/NC/RAR)
+臭氧颗粒物站点校验/
+claude_analysisreport_used/
+校验Zip/
+气象站点/

@@ -1,0 +1,29 @@
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
+begin
+row = 142
+col = 178
+ocean = asciiread("/bigdata/emis-make/Youzhiqiang/Forecast/D3/D3NEW/nclproject/oceanfile/D3NEW.csv",(/row*col,2/),"float")
+system("rm /bigdata/emis-make/Youzhiqiang/Forecast/D3/D3NEW/nclproject/oceanfile/oceanfile.nc")
+opt  = addfile("/bigdata/emis-make/Youzhiqiang/Forecast/D3/D3NEW/nclproject/oceanfile/oceanfile.nc","c")
+
+OPEN = new((/row,col/),float)
+OPEN = 0
+SURF = new((/row,col/),float)
+SURF = 0
+do i = 0,row-1
+ do j = 0,col-1
+  OPEN(i,j) = ocean((i*col+j),1)
+  SURF(i,j) = ocean((i*col+j),0)
+ end do
+end do
+        newx    = OPEN
+        newx!0  = "ROW"
+        newx!1  = "COL"
+        opt->OPEN   = newx(:,:) 
+
+        newx2    = SURF
+        newx2!0  = "ROW"
+        newx2!1  = "COL"
+        opt->SURF   = newx2(:,:) 
+end
