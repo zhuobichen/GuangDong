@@ -142,3 +142,192 @@ def plot_diff_map(csv1: str, csv2: str, variable: str, model_file: str, output_d
     fig.savefig(out_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     return out_path
+
+
+# ============================================================
+# 数据源配置
+# ============================================================
+
+DATA_SOURCE_CONFIGS = {
+    "cmaq": {
+        "variables": ["O3", "PM2.5", "O3_Days", "PM2.5_Days"],
+        "variable_units": {"O3": "ppb", "PM2.5": "μg/m³", "O3_Days": "days", "PM2.5_Days": "days"},
+        "file_pattern": "{year}_Emission[{year}met]_{month}",
+    },
+    "mcip": {
+        "variables": ["TA_mean", "TA_max", "SOL_RAD_mean", "SOL_RAD_max", "PBLH_mean", "PBLH_max"],
+        "variable_units": {"TA_mean": "°C", "TA_max": "°C", "SOL_RAD_mean": "W/m²",
+                          "SOL_RAD_max": "W/m²", "PBLH_mean": "m", "PBLH_max": "m"},
+        "file_pattern": "{year}_mcipout_{month}",
+    },
+    "emission": {
+        "variables": ["PM2.5"],
+        "variable_units": {"PM2.5": "g/s"},
+        "file_pattern": "EM_{year}{month}_PM2.5",
+    },
+}
+
+
+# ============================================================
+# 文件查找辅助
+# ============================================================
+
+def _find_csv_files(
+    data_dir: str,
+    years: List[str],
+    months: List[str],
+    file_pattern: str,
+    region_suffix: str = "",
+) -> List[Tuple[str, str, str]]:
+    """扫描目录，按年份/月份/区域后缀匹配 CSV 文件。
+
+    Returns:
+        List of (file_path, year, month)
+    """
+    results = []
+    for year in years:
+        for month in months:
+            month_str = str(month).zfill(2)
+            fname = file_pattern.format(year=year, month=month_str) + f"{region_suffix}.csv"
+            fpath = os.path.join(data_dir, fname)
+            if os.path.exists(fpath):
+                results.append((fpath, year, month_str))
+            else:
+                for f in sorted(os.listdir(data_dir)):
+                    if not f.endswith(f"{region_suffix}.csv"):
+                        continue
+                    if year in f and f"_{month_str}" in f:
+                        results.append((os.path.join(data_dir, f), year, month_str))
+                        break
+    return results
+
+
+# ============================================================
+# 管道函数
+# ============================================================
+
+def run_single_map_pipeline(
+    data_dir: str,
+    output_dir: str,
+    model_file: str,
+    boundary_json: str,
+    data_source: str = "cmaq",
+    years: Optional[List[str]] = None,
+    months: Optional[List[str]] = None,
+    variables: Optional[List[str]] = None,
+    region_suffix: str = "",
+    unified_legend: bool = False,
+    value_range: Optional[Tuple[float, float]] = None,
+) -> List[str]:
+    """单独空间分布图管道。
+
+    扫描 data_dir 中符合年份/月份模式的 CSV，批量绘制单张空间分布图。
+    """
+    cfg = DATA_SOURCE_CONFIGS.get(data_source)
+    if cfg is None:
+        raise ValueError(f"未知数据源: {data_source}，可选: {list(DATA_SOURCE_CONFIGS.keys())}")
+
+    if years is None:
+        years = ["2000", "2023"]
+    if months is None:
+        months = ["01", "07"]
+    if variables is None:
+        variables = cfg["variables"]
+
+    files = _find_csv_files(data_dir, years, months, cfg["file_pattern"], region_suffix)
+    if not files:
+        print(f"  ⚠️ 未找到匹配的 CSV 文件 (dir={data_dir}, pattern={cfg['file_pattern']})")
+        return []
+
+    print(f"\n{'='*60}")
+    print(f"Run Single Map Pipeline — {data_source}")
+    print(f"  Data: {data_dir} ({len(files)} files)")
+    print(f"  Output: {output_dir}")
+    print(f"  Variables: {variables}")
+    print(f"{'='*60}")
+
+    load_model_grid(model_file)
+
+    outputs = []
+    for csv_path, year, month in files:
+        year_output_dir = os.path.join(output_dir, year)
+        for var in variables:
+            unit = cfg["variable_units"].get(var, "")
+            out = plot_single_map(
+                csv_path=csv_path,
+                variable=var,
+                model_file=model_file,
+                output_dir=year_output_dir,
+                boundary_json=boundary_json,
+                unit=unit,
+                value_range=value_range if unified_legend else None,
+            )
+            if out:
+                outputs.append(out)
+
+    print(f"\n  ✅ 完成: {len(outputs)} 张地图")
+    return outputs
+
+
+def run_diff_map_pipeline(
+    data_dir: str,
+    output_dir: str,
+    model_file: str,
+    boundary_json: str,
+    data_source: str = "cmaq",
+    variables: Optional[List[str]] = None,
+    comparison_pairs: Optional[List[Tuple[str, str, str]]] = None,
+) -> List[str]:
+    """差异对比地图管道。
+
+    Args:
+        data_dir:         CSV 数据目录
+        output_dir:       图片输出目录
+        model_file:       IOAPI 网格文件路径
+        boundary_json:    边界 GeoJSON 路径
+        data_source:      'cmaq' | 'mcip' | 'emission'
+        variables:        变量列表
+        comparison_pairs: 对比对列表 [(文件1, 文件2, 输出后缀), ...]
+    """
+    cfg = DATA_SOURCE_CONFIGS.get(data_source)
+    if cfg is None:
+        raise ValueError(f"未知数据源: {data_source}，可选: {list(DATA_SOURCE_CONFIGS.keys())}")
+
+    if variables is None:
+        variables = cfg["variables"]
+    if comparison_pairs is None:
+        raise ValueError("comparison_pairs 不能为空")
+
+    print(f"\n{'='*60}")
+    print(f"Run Diff Map Pipeline — {data_source}")
+    print(f"  Data: {data_dir}")
+    print(f"  Output: {output_dir}")
+    print(f"  Pairs: {len(comparison_pairs)}")
+    print(f"  Variables: {variables}")
+    print(f"{'='*60}")
+
+    load_model_grid(model_file)
+
+    outputs = []
+    for f1_name, f2_name, suffix in comparison_pairs:
+        csv1 = f1_name if os.path.isabs(f1_name) else os.path.join(data_dir, f1_name)
+        csv2 = f2_name if os.path.isabs(f2_name) else os.path.join(data_dir, f2_name)
+
+        if not os.path.exists(csv1):
+            print(f"  ⚠️ 文件不存在，跳过: {csv1}")
+            continue
+        if not os.path.exists(csv2):
+            print(f"  ⚠️ 文件不存在，跳过: {csv2}")
+            continue
+
+        for var in variables:
+            out = plot_diff_map(
+                csv1=csv1, csv2=csv2, variable=var,
+                model_file=model_file, output_dir=output_dir,
+                boundary_json=boundary_json, output_suffix=suffix,
+            )
+            if out:
+                outputs.append(out)
+
+    print(f"\n  ✅ 完成: {len(outputs)} 张差值地图")
+    return outputs

@@ -33,30 +33,30 @@ CHINA_JSON = str(PROJECT_ROOT / "Data/Boundary/china.json")
 PROVINCES_JSON = str(PROJECT_ROOT / "Data/Boundary/China_provinces.json")
 FLAG_NC = str(PROJECT_ROOT / "Data/Boundary/HuiZhou_2000121_GuangDongD3.nc")
 
-# 旧数据源 → 输出目标 (Data/Masked/)
+# 数据源 → 输入/输出映射 (Data/结构)
 DATA_SOURCES = {
     "cmaq": {
-        "input": PROJECT_ROOT / "cmaqout_processed",
+        "input": PROJECT_ROOT / "Data" / "Processed" / "CMAQ",
         "outputs": {
-            "guangdong": PROJECT_ROOT / "Data/Masked/GuangDong/cmaq",
-            "land":      PROJECT_ROOT / "Data/Masked/Land/cmaq",
-            "huizhou":   PROJECT_ROOT / "Data/Masked/HuiZhou/cmaq",
+            "guangdong": PROJECT_ROOT / "Data" / "Masked" / "GuangDong" / "cmaq",
+            "land":      PROJECT_ROOT / "Data" / "Masked" / "Land" / "cmaq",
+            "huizhou":   PROJECT_ROOT / "Data" / "Masked" / "HuiZhou" / "cmaq",
         },
     },
     "mcip": {
-        "input": PROJECT_ROOT / "mcipout_processed",
+        "input": PROJECT_ROOT / "Data" / "Processed" / "MCIP",
         "outputs": {
-            "guangdong": PROJECT_ROOT / "Data/Masked/GuangDong/mcip",
-            "land":      PROJECT_ROOT / "Data/Masked/Land/mcip",
-            "huizhou":   PROJECT_ROOT / "Data/Masked/HuiZhou/mcip",
+            "guangdong": PROJECT_ROOT / "Data" / "Masked" / "GuangDong" / "mcip",
+            "land":      PROJECT_ROOT / "Data" / "Masked" / "Land" / "mcip",
+            "huizhou":   PROJECT_ROOT / "Data" / "Masked" / "HuiZhou" / "mcip",
         },
     },
     "emission": {
-        "input": PROJECT_ROOT / "emissionlist",
+        "input": PROJECT_ROOT / "Data" / "Processed" / "Emission",
         "outputs": {
-            "guangdong": PROJECT_ROOT / "Data/Masked/GuangDong/emission",
-            "land":      PROJECT_ROOT / "Data/Masked/Land/emission",
-            "huizhou":   PROJECT_ROOT / "Data/Masked/HuiZhou/emission",
+            "guangdong": PROJECT_ROOT / "Data" / "Masked" / "GuangDong" / "emission",
+            "land":      PROJECT_ROOT / "Data" / "Masked" / "Land" / "emission",
+            "huizhou":   PROJECT_ROOT / "Data" / "Masked" / "HuiZhou" / "emission",
         },
     },
 }

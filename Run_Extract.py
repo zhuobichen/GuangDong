@@ -23,11 +23,9 @@ from Core_Extract import extract_and_output
 # 项目路径
 # ============================================================
 PROJECT_ROOT = Path(__file__).resolve().parent
-CMAQ_DIR = str(PROJECT_ROOT / "cmaqout")
-PROCESSED_EMISSION = str(PROJECT_ROOT / "cmaqout_processed")
-PROCESSED_METEO = str(PROJECT_ROOT / "mcipout_processed")
-PROCESSED_EMISSION_HZ = str(PROJECT_ROOT / "cmaqout_processed_HuiZhou")
-PROCESSED_METEO_HZ = str(PROJECT_ROOT / "mcipout_processed_HuiZhou")
+CMAQ_DIR = str(PROJECT_ROOT / "Data" / "Raw" / "CMAQ")
+PROCESSED_EMISSION = str(PROJECT_ROOT / "Data" / "Processed" / "CMAQ")
+PROCESSED_METEO = str(PROJECT_ROOT / "Data" / "Processed" / "MCIP")
 
 
 # ============================================================
@@ -42,13 +40,11 @@ class FileConfig:
         output_name: str,
         year: int = 2000,
         month: int = 7,
-        apply_huizhou: bool = True,
     ):
         self.nc_file = nc_file
-        self.output_name = output_name  # 不含扩展名
+        self.output_name = output_name
         self.year = year
         self.month = month
-        self.apply_huizhou = apply_huizhou
 
 
 # ============================================================
@@ -152,17 +148,6 @@ def main():
                 cfg.nc_file, cfg.month, "meteo",
                 PROCESSED_METEO, cfg.output_name,
             )
-
-            if cfg.apply_huizhou:
-                # Huizhou 版本 (同一名称加 _HuiZhou 后缀由后续 Core_Mask 统一处理)
-                extract_and_output(
-                    cfg.nc_file, cfg.month, "emission",
-                    PROCESSED_EMISSION_HZ, f"{cfg.output_name}_HuiZhou",
-                )
-                extract_and_output(
-                    cfg.nc_file, cfg.month, "meteo",
-                    PROCESSED_METEO_HZ, f"{cfg.output_name}_HuiZhou",
-                )
         except Exception as e:
             print(f"  ❌ 失败: {e}")
             continue
